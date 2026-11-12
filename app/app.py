@@ -15,28 +15,32 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.predict import load_model_bundle, predict_single
 
 METRICS_PATH = PROJECT_ROOT / "models" / "metrics.json"
-JALANDHAR_LOCALITIES = [
-    "Model Town, Jalandhar",
-    "Civil Lines, Jalandhar",
-    "Urban Estate Phase I, Jalandhar",
-    "Urban Estate Phase II, Jalandhar",
-    "Rama Mandi, Jalandhar",
-    "Jalandhar Cantt",
-    "Maqsudan, Jalandhar",
-    "Ladowali Road, Jalandhar",
-    "Adarsh Nagar, Jalandhar",
-    "GTB Nagar, Jalandhar",
-    "Nakodar Road, Jalandhar",
-    "Phagwara Gate, Jalandhar",
-    "Basti Sheikh, Jalandhar",
-    "Basti Nau, Jalandhar",
-    "Shastri Nagar, Jalandhar",
-    "Garha, Jalandhar",
-    "Mithapur, Jalandhar",
-    "Deep Nagar, Jalandhar",
-    "PAP Chowk, Jalandhar",
-    "Pathankot Chowk, Jalandhar",
-]
+INDIAN_STATES_CITIES = {
+    "Andhra Pradesh": ["Visakhapatnam", "Vijayawada", "Guntur", "Tirupati"],
+    "Assam": ["Guwahati", "Silchar", "Dibrugarh"],
+    "Bihar": ["Patna", "Gaya", "Muzaffarpur", "Bhagalpur"],
+    "Chandigarh": ["Chandigarh"],
+    "Chhattisgarh": ["Raipur", "Bhilai", "Bilaspur"],
+    "Delhi (NCT)": ["New Delhi", "Dwarka", "Rohini", "Saket"],
+    "Goa": ["Panaji", "Margao", "Vasco da Gama"],
+    "Gujarat": ["Ahmedabad", "Surat", "Vadodara", "Rajkot"],
+    "Haryana": ["Gurugram", "Faridabad", "Panipat", "Ambala", "Karnal"],
+    "Himachal Pradesh": ["Shimla", "Dharamshala", "Solan", "Mandi"],
+    "Jammu & Kashmir": ["Srinagar", "Jammu"],
+    "Jharkhand": ["Ranchi", "Jamshedpur", "Dhanbad"],
+    "Karnataka": ["Bengaluru", "Mysuru", "Mangaluru", "Hubballi"],
+    "Kerala": ["Kochi", "Thiruvananthapuram", "Kozhikode", "Thrissur"],
+    "Madhya Pradesh": ["Bhopal", "Indore", "Jabalpur", "Gwalior"],
+    "Maharashtra": ["Mumbai", "Pune", "Nagpur", "Nashik", "Thane"],
+    "Odisha": ["Bhubaneswar", "Cuttack", "Rourkela"],
+    "Punjab": ["Jalandhar", "Ludhiana", "Amritsar", "Patiala", "Mohali", "Bathinda"],
+    "Rajasthan": ["Jaipur", "Jodhpur", "Udaipur", "Kota"],
+    "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai", "Tiruchirappalli"],
+    "Telangana": ["Hyderabad", "Warangal", "Nizamabad"],
+    "Uttar Pradesh": ["Lucknow", "Noida", "Kanpur", "Varanasi", "Agra", "Prayagraj"],
+    "Uttarakhand": ["Dehradun", "Haridwar", "Haldwani"],
+    "West Bengal": ["Kolkata", "Howrah", "Siliguri", "Durgapur"],
+}
 WEEKDAY_MAP = {
     "Monday": 0,
     "Tuesday": 1,
@@ -90,16 +94,11 @@ def main() -> None:
             weekday_name = st.selectbox("Appointment Weekday", list(WEEKDAY_MAP.keys()), index=1)
             gender = st.radio("Gender", ["F", "M"], horizontal=True)
         with c2:
-            location_mode = st.radio(
-                "Locality List",
-                ["Jalandhar, Punjab (India)", "Training Dataset (Vitória, Brazil)"],
-                horizontal=True,
-            )
-            if location_mode == "Jalandhar, Punjab (India)":
-                neighbourhood = st.selectbox("Locality / Neighbourhood (Jalandhar)", JALANDHAR_LOCALITIES, index=0)
-            else:
-                hoods = bundle.get("known_neighbourhoods", ["JARDIM CAMBURI"])
-                neighbourhood = st.selectbox("Neighbourhood (Vitória Dataset)", hoods, index=0)
+            state_list = list(INDIAN_STATES_CITIES.keys())
+            default_state_idx = state_list.index("Punjab")
+            selected_state = st.selectbox("State / UT (India)", state_list, index=default_state_idx)
+            selected_city = st.selectbox("City", INDIAN_STATES_CITIES[selected_state], index=0)
+            neighbourhood = f"{selected_city}, {selected_state}"
             sms_received = st.checkbox("SMS / WhatsApp Reminder Sent", value=False)
             scholarship = st.checkbox(
                 "Welfare / Subsidy Card (Ayushman / BPL / Scholarship)",
@@ -163,7 +162,7 @@ def main() -> None:
             "- `SMS_received` is confounded with lead time in observational data (same-day visits receive no SMS); "
             "do not treat SMS toggles as a causal intervention estimate.\n"
             "- **Geographic Domain Note:** Underlying weights are trained on the 2016 Kaggle public-clinic dataset. "
-            "Jalandhar localities use the model's neutral baseline geographic prior until retrained on local Punjab clinic records."
+            "Indian state/city selections use the model's neutral baseline geographic prior until retrained on local clinic records."
         )
 
     if metrics:
