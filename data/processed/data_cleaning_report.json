@@ -1,0 +1,32 @@
+{
+  "data_source": "real",
+  "raw_rows": 110527,
+  "steps": [
+    {
+      "step": "deduplicate_appointment_id",
+      "rows_removed": 0,
+      "rows_remaining": 110527
+    },
+    {
+      "step": "drop_negative_lead_time",
+      "rows_removed": 5,
+      "rows_remaining": 110522,
+      "reason": "AppointmentDay strictly before ScheduledDay"
+    },
+    {
+      "step": "drop_invalid_age",
+      "rows_removed": 6,
+      "negative_age_rows": 1,
+      "extreme_age_rows_gt_110": 5,
+      "rows_remaining": 110516,
+      "reason": "Keep Age in [0, 110]; Age == 0 retained as valid infant visits"
+    }
+  ],
+  "clean_rows": 110516,
+  "total_rows_removed": 11,
+  "no_show_rate": 0.20188,
+  "unique_patients": 62296,
+  "unique_neighbourhoods": 81,
+  "appointment_date_min": "2016-04-29",
+  "appointment_date_max": "2016-06-08"
+}
