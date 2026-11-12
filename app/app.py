@@ -15,6 +15,28 @@ if str(PROJECT_ROOT) not in sys.path:
 from src.predict import load_model_bundle, predict_single
 
 METRICS_PATH = PROJECT_ROOT / "models" / "metrics.json"
+JALANDHAR_LOCALITIES = [
+    "Model Town, Jalandhar",
+    "Civil Lines, Jalandhar",
+    "Urban Estate Phase I, Jalandhar",
+    "Urban Estate Phase II, Jalandhar",
+    "Rama Mandi, Jalandhar",
+    "Jalandhar Cantt",
+    "Maqsudan, Jalandhar",
+    "Ladowali Road, Jalandhar",
+    "Adarsh Nagar, Jalandhar",
+    "GTB Nagar, Jalandhar",
+    "Nakodar Road, Jalandhar",
+    "Phagwara Gate, Jalandhar",
+    "Basti Sheikh, Jalandhar",
+    "Basti Nau, Jalandhar",
+    "Shastri Nagar, Jalandhar",
+    "Garha, Jalandhar",
+    "Mithapur, Jalandhar",
+    "Deep Nagar, Jalandhar",
+    "PAP Chowk, Jalandhar",
+    "Pathankot Chowk, Jalandhar",
+]
 WEEKDAY_MAP = {
     "Monday": 0,
     "Tuesday": 1,
@@ -68,10 +90,22 @@ def main() -> None:
             weekday_name = st.selectbox("Appointment Weekday", list(WEEKDAY_MAP.keys()), index=1)
             gender = st.radio("Gender", ["F", "M"], horizontal=True)
         with c2:
-            hoods = bundle.get("known_neighbourhoods", ["JARDIM CAMBURI"])
-            neighbourhood = st.selectbox("Neighbourhood", hoods, index=0)
-            sms_received = st.checkbox("SMS Reminder Sent", value=False)
-            scholarship = st.checkbox("Bolsa Família Scholarship", value=False)
+            location_mode = st.radio(
+                "Locality List",
+                ["Jalandhar, Punjab (India)", "Training Dataset (Vitória, Brazil)"],
+                horizontal=True,
+            )
+            if location_mode == "Jalandhar, Punjab (India)":
+                neighbourhood = st.selectbox("Locality / Neighbourhood (Jalandhar)", JALANDHAR_LOCALITIES, index=0)
+            else:
+                hoods = bundle.get("known_neighbourhoods", ["JARDIM CAMBURI"])
+                neighbourhood = st.selectbox("Neighbourhood (Vitória Dataset)", hoods, index=0)
+            sms_received = st.checkbox("SMS / WhatsApp Reminder Sent", value=False)
+            scholarship = st.checkbox(
+                "Welfare / Subsidy Card (Ayushman / BPL / Scholarship)",
+                value=False,
+                help="Maps to the training schema's welfare indicator (`Scholarship`).",
+            )
             prior_appt_count = st.number_input("Past Appointments (strictly prior)", min_value=0, max_value=50, value=0)
             prior_noshow_count = st.number_input(
                 "Past No-Shows", min_value=0, max_value=int(prior_appt_count), value=0
@@ -128,7 +162,8 @@ def main() -> None:
             "never to restrict or penalize access to care.\n"
             "- `SMS_received` is confounded with lead time in observational data (same-day visits receive no SMS); "
             "do not treat SMS toggles as a causal intervention estimate.\n"
-            "- Predictions reflect historical 2016 Vitória clinic patterns and lack visit specialty or transport data."
+            "- **Geographic Domain Note:** Underlying weights are trained on the 2016 Kaggle public-clinic dataset. "
+            "Jalandhar localities use the model's neutral baseline geographic prior until retrained on local Punjab clinic records."
         )
 
     if metrics:
