@@ -1,5 +1,8 @@
 # Hospital Appointment No-Show Prediction
 
+[![Streamlit App](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://hospitalah.streamlit.app)  
+**Live Demo:** [https://hospitalah.streamlit.app](https://hospitalah.streamlit.app)
+
 An end-to-end, leakage-aware machine learning project predicting outpatient appointment no-shows to help clinic coordinators prioritize **proactive, supportive outreach** (reminder phone calls, easy rescheduling, and transit support) for the top 20% highest-risk appointments.
 
 > **Data Source Notice:** All reported results, figures, and saved artifacts in `models/metrics.json` were generated on the **real Kaggle dataset** (`data/raw/KaggleV2-May-2016.csv`, 110,527 raw rows -> 110,516 cleaned rows). If `data/raw/KaggleV2-May-2016.csv` is removed, the pipeline automatically falls back to `src/make_synthetic.py` and clearly flags outputs as synthetic.
